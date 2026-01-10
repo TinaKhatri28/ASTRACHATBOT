@@ -8,7 +8,6 @@ const chatBody = document.getElementById("chatBody");
 const modal = document.getElementById("modal");
 const modalClose = document.getElementById("modalClose");
 
-// Show chat box
 chatBtn.onclick = () => {
     chatBox.style.display = "flex";
 };
@@ -32,7 +31,6 @@ function sendMessage() {
     input.value = "";
     chatBody.scrollTop = chatBody.scrollHeight;
 
-    // 🔥 CALL FLASK BACKEND
     fetch("/chat", {
         method: "POST",
         headers: {
@@ -60,7 +58,6 @@ function sendMessage() {
 }
 
 
-// Click send button
 sendBtn.onclick = sendMessage;
 
 // Press Enter to send
@@ -70,7 +67,7 @@ input.addEventListener("keypress", function(e) {
     }
 });
 
-// Modal open/close (example)
+
 document.getElementById("addExtra").onclick = () => {
     modal.style.display = "block";
 };
