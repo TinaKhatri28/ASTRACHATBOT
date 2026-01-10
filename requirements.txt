@@ -16,4 +16,5 @@ numpy
 scikit-learn
 nltk
 jupyter
-gradio==4.16.0
+gunicorn
+
