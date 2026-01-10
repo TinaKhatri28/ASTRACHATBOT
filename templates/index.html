@@ -1,0 +1,109 @@
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget</title> -->
+    <!-- Link to CSS -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+    <!-- Font Awesome for icons -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body> -->
+
+    <!-- Chat Button -->
+    <!-- <div class="chat-button" id="chatButton"><span></span></div> -->
+
+    <!-- Chat Box -->
+    <!-- <div class="chat-box" id="chatBox">
+        <div class="chat-box-header">
+            <h3>Message Us</h3>
+            <p id="closeBtn"><i class="fa fa-times"></i></p>
+        </div>
+
+        <div class="chat-box-body" id="chatBody"> -->
+            <!-- Messages appear here dynamically -->
+        <!-- </div>
+
+        <div class="chat-box-footer">
+            <button id="addExtra"><i class="fa fa-plus"></i></button>
+            <input id="userInput" placeholder="Enter Your Message" type="text" />
+            <i class="send far fa-paper-plane" id="sendBtn"></i>
+        </div>
+    </div> -->
+
+    <!-- Modal -->
+    <!-- <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="modal-close-button" id="modalClose">&times;</span>
+            <h1>Add What you want here.</h1>
+        </div>
+    </div> -->
+
+    <!-- <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- CHAT BUTTON -->
+    <div class="chat-button" id="chatButton">
+        <span>Message Us</span>
+    </div>
+
+    <!-- CHAT BOX -->
+    <div class="chat-box" id="chatBox" style="display:none;">
+        <div class="chat-box-header">
+            <span class="chat-title">ASTRABOT🌱</span>
+            <i class="fa fa-times" id="closeBtn" style="cursor:pointer;"></i>
+        </div>
+
+        <!-- CHAT BODY -->
+        <div class="chat-box-body" id="chatBody">
+            <!-- Messages injected dynamically -->
+        </div>
+
+        <!-- CHAT FOOTER -->
+        <div class="chat-box-footer">
+            <button id="addExtra" type="button">
+                <i class="fa fa-plus"></i>
+            </button>
+
+            <input
+                id="userInput"
+                type="text"
+                placeholder="Enter your message..."
+                autocomplete="off"
+            />
+
+            <i class="send far fa-paper-plane" id="sendBtn" style="cursor:pointer;"></i>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close-button" id="modalClose">&times;</span>
+            <h2>Add what you want here</h2>
+            <p>You can place attachments, options, or future features.</p>
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
