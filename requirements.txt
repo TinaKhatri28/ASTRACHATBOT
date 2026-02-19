@@ -1,24 +1,33 @@
-python-dotenv
-flask
-pypdf
-langchain
-langchain-core
-langchain-community
-langchain-experimental
-langchain-huggingface
-langsmith
-chromadb
-sentence-transformers
-transformers
-torch
-huggingface-hub
-numpy
-scikit-learn
-nltk
-jupyter
-gunicorn
+# Core LLM & RAG
+langchain==0.0.350
+langchain-community==0.0.38
+langchain-openai==0.0.8
+langchain-experimental==0.0.32
 
-SpeechRecognition==3.10.0
-pyaudio==0.2.11
-gTTS==2.4.0
-pygame==2.5.2  # For audio playback
+# Embeddings
+sentence-transformers==2.2.2
+transformers==4.36.2
+
+# Vector Database
+pinecone-client==3.2.2
+langchain-pinecone==0.1.0
+
+# Web Framework
+flask==2.3.3
+flask-socketio==5.3.6
+
+# PDF Processing
+pypdf==3.17.1
+
+# Environment & Utils
+python-dotenv==1.0.0
+os
+
+# Jupyter (for research)
+jupyter==1.0.0
+ipykernel==6.29.3
+
+# Development
+setuptools==69.0.3
+
+gunicorn
