@@ -3,4 +3,5 @@ services:
     name: ASTRABOT
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: WEB_CONCURRENCY=1 gunicorn app:app --bind 0.0.0.0:$PORT
+
