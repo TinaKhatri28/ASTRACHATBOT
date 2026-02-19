@@ -1,81 +1,82 @@
-// Elements
-const chatBtn = document.getElementById("chatButton");
-const chatBox = document.getElementById("chatBox");
-const closeBtn = document.getElementById("closeBtn");
-const sendBtn = document.getElementById("sendBtn");
-const input = document.getElementById("userInput");
-const chatBody = document.getElementById("chatBody");
-const modal = document.getElementById("modal");
-const modalClose = document.getElementById("modalClose");
+document.addEventListener("DOMContentLoaded", function () {
 
-chatBtn.onclick = () => {
-    chatBox.style.display = "flex";
-};
+    const chatBtn = document.getElementById("chatButton");
+    const chatBox = document.getElementById("chatBox");
+    const closeBtn = document.getElementById("closeBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const input = document.getElementById("userInput");
+    const chatBody = document.getElementById("chatBody");
+    const voiceBtn = document.getElementById("voice-btn");
 
-// Close chat box
-closeBtn.onclick = () => {
-    chatBox.style.display = "none";
-};
+    chatBtn.onclick = () => chatBox.style.display = "flex";
+    closeBtn.onclick = () => chatBox.style.display = "none";
 
-function sendMessage() {
-    const msg = input.value.trim();
-    if (!msg) return;
+    function addMessage(text, type) {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "message " + type;
 
-    // User message
-    chatBody.innerHTML += `
-        <div class="chat-box-body-send">
-            <p>${msg}</p>
-            <span>${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-        </div>
-    `;
-    input.value = "";
-    chatBody.scrollTop = chatBody.scrollHeight;
+        const content = document.createElement("div");
+        content.className = "message-content";
+        content.innerText = text;
 
-    fetch("/chat", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ message: msg })
-    })
-    .then(res => res.json())
-    .then(data => {
-        chatBody.innerHTML += `
-            <div class="chat-box-body-receive">
-                <p>${data.response}</p>
-                <span>${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-            </div>
-        `;
+        msgDiv.appendChild(content);
+        chatBody.appendChild(msgDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
-    })
-    .catch(err => {
-        chatBody.innerHTML += `
-            <div class="chat-box-body-receive">
-                <p>Error getting response</p>
-            </div>
-        `;
+    }
+
+    function sendMessage() {
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        addMessage(msg, "user-message");
+        input.value = "";
+
+        fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: msg })
+        })
+        .then(res => res.json())
+        .then(data => {
+            addMessage(data.response, "bot-message");
+
+            if (data.audio) {
+                const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
+                audio.play().catch(() => {});
+            }
+        });
+    }
+
+    sendBtn.onclick = sendMessage;
+
+    input.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") sendMessage();
     });
-}
 
+    // 🎤 Voice Input
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
 
-sendBtn.onclick = sendMessage;
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
 
-// Press Enter to send
-input.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-        sendMessage();
+        voiceBtn.onclick = () => {
+            recognition.start();
+            voiceBtn.innerHTML = "🔴";
+        };
+
+        recognition.onresult = (event) => {
+            input.value = event.results[0][0].transcript;
+            voiceBtn.innerHTML = "🎤";
+            sendMessage();
+        };
+
+        recognition.onend = () => {
+            voiceBtn.innerHTML = "🎤";
+        };
+    } else {
+        voiceBtn.style.display = "none";
     }
+
 });
-
-
-document.getElementById("addExtra").onclick = () => {
-    modal.style.display = "block";
-};
-modalClose.onclick = () => {
-    modal.style.display = "none";
-};
-window.onclick = (e) => {
-    if (e.target == modal) {
-        modal.style.display = "none";
-    }
-};
