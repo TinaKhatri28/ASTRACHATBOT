@@ -9,3 +9,4 @@ huggingface-hub
 langdetect
 gtts
 gunicorn
+sentence-transformers
