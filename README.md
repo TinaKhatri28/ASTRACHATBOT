@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ASTRABOT
 A domain-specific AI chatbot for agriculture, providing intelligent responses on crops, soil health, pests, and sustainable farming using NLP and ML.
 
@@ -22,3 +23,6 @@ conda activate agribot
 ```bash
 pip install -r requirements.txt
 ```
+=======
+# ASTRACHATBOT
+>>>>>>> fefaa2375813b8a752b8e3227c98a7160ee9552b
