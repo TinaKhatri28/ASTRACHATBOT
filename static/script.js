@@ -1,82 +1,157 @@
-document.addEventListener("DOMContentLoaded", function () {
-
-    const chatBtn = document.getElementById("chatButton");
-    const chatBox = document.getElementById("chatBox");
-    const closeBtn = document.getElementById("closeBtn");
+document.addEventListener("DOMContentLoaded", () => {
+    const chatContainer = document.getElementById("chatContainer");
+    const userInput = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-    const input = document.getElementById("userInput");
-    const chatBody = document.getElementById("chatBody");
-    const voiceBtn = document.getElementById("voice-btn");
+    const voiceBtn = document.getElementById("voiceBtn");
+    const ttsAudio = document.getElementById("ttsAudio");
 
-    chatBtn.onclick = () => chatBox.style.display = "flex";
-    closeBtn.onclick = () => chatBox.style.display = "none";
+    // Scroll to bottom of chat
+    function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-    function addMessage(text, type) {
-        const msgDiv = document.createElement("div");
-        msgDiv.className = "message " + type;
+    // Add a message to the chat
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", sender === "user" ? "user-message" : "ai-message");
+
+        const avatar = document.createElement("div");
+        avatar.classList.add("avatar");
+        
+        if (sender === "user") {
+            avatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+        } else {
+            avatar.innerHTML = '<i class="fa-solid fa-robot"></i>';
+        }
 
         const content = document.createElement("div");
-        content.className = "message-content";
-        content.innerText = text;
+        content.classList.add("message-content");
+        const p = document.createElement("p");
+        p.textContent = text;
+        content.appendChild(p);
 
-        msgDiv.appendChild(content);
-        chatBody.appendChild(msgDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+
+        chatContainer.appendChild(messageDiv);
+        scrollToBottom();
     }
 
-    function sendMessage() {
-        const msg = input.value.trim();
-        if (!msg) return;
+    // Add loading typing indicator
+    function addTypingIndicator() {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", "ai-message");
+        messageDiv.id = "typingIndicator";
 
-        addMessage(msg, "user-message");
-        input.value = "";
+        const avatar = document.createElement("div");
+        avatar.classList.add("avatar");
+        avatar.innerHTML = '<i class="fa-solid fa-robot"></i>';
 
-        fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: msg })
-        })
-        .then(res => res.json())
-        .then(data => {
-            addMessage(data.response, "bot-message");
+        const content = document.createElement("div");
+        content.classList.add("message-content");
+        
+        const typing = document.createElement("div");
+        typing.classList.add("typing-indicator");
+        typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        
+        content.appendChild(typing);
 
-            if (data.audio) {
-                const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
-                audio.play().catch(() => {});
-            }
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+
+        chatContainer.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    // Remove typing indicator
+    function removeTypingIndicator() {
+        const indicator = document.getElementById("typingIndicator");
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    // Play base64 audio
+    function playAudio(base64Audio) {
+        if (!base64Audio) return;
+        
+        const audioSrc = "data:audio/mp3;base64," + base64Audio;
+        ttsAudio.src = audioSrc;
+        
+        ttsAudio.play().then(() => {
+            document.body.classList.add("audio-playing");
+        }).catch(err => {
+            console.error("Audio play failed:", err);
         });
+
+        ttsAudio.onended = () => {
+            document.body.classList.remove("audio-playing");
+        };
     }
 
-    sendBtn.onclick = sendMessage;
+    // Stop audio
+    function stopAudio() {
+        ttsAudio.pause();
+        ttsAudio.currentTime = 0;
+        document.body.classList.remove("audio-playing");
+    }
 
-    input.addEventListener("keypress", function(e) {
-        if (e.key === "Enter") sendMessage();
+    // Voice button toggles playback stop if playing
+    voiceBtn.addEventListener("click", () => {
+        if (!ttsAudio.paused) {
+            stopAudio();
+        }
     });
 
-    // 🎤 Voice Input
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
+    // Handle sending message
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
 
-        recognition.lang = "en-US";
-        recognition.interimResults = false;
+        // Stop any currently playing audio
+        stopAudio();
 
-        voiceBtn.onclick = () => {
-            recognition.start();
-            voiceBtn.innerHTML = "🔴";
-        };
+        // UI Updates
+        addMessage(text, "user");
+        userInput.value = "";
+        userInput.disabled = true;
+        sendBtn.disabled = true;
+        
+        addTypingIndicator();
 
-        recognition.onresult = (event) => {
-            input.value = event.results[0][0].transcript;
-            voiceBtn.innerHTML = "🎤";
-            sendMessage();
-        };
+        try {
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
 
-        recognition.onend = () => {
-            voiceBtn.innerHTML = "🎤";
-        };
-    } else {
-        voiceBtn.style.display = "none";
+            const data = await response.json();
+            
+            removeTypingIndicator();
+            addMessage(data.response, "ai");
+            
+            if (data.audio) {
+                playAudio(data.audio);
+            }
+
+        } catch (error) {
+            console.error(error);
+            removeTypingIndicator();
+            addMessage("I'm sorry, I am currently unable to connect to the server.", "ai");
+        } finally {
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
     }
 
+    // Event Listeners
+    sendBtn.addEventListener("click", sendMessage);
+
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
 });
