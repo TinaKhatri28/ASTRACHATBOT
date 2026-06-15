@@ -115,7 +115,7 @@ def chat():
 
     except Exception as e:
         print("ERROR:", e)
-        return jsonify({"response": "Backend error occurred"}), 500
+        return jsonify({"response": f"Backend error occurred: {str(e)}"}), 500
 
 
 # -------------------- RUN --------------------
